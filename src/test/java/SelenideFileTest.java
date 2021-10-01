@@ -5,11 +5,10 @@ import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.stream.Stream;
 
+import static java.nio.file.Files.exists;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 public class SelenideFileTest {
@@ -19,8 +18,8 @@ public class SelenideFileTest {
         String result;
         try (InputStream stream = getClass().getClassLoader().getResourceAsStream("Test-2.txt")) {
             result = new String(stream.readAllBytes(), "UTF-8");
+            assertThat(result).contains("Имеется спорная точка зрения, гласящая примерно следующее:");
         }
-        assertThat(result).contains("Имеется спорная точка зрения, гласящая примерно следующее:");
     }
     //проверка pdf-файла
     @Test
@@ -28,8 +27,8 @@ public class SelenideFileTest {
         PDF result;
         try (InputStream stream = getClass().getClassLoader().getResourceAsStream("Test-3.pdf")) {
             result = new PDF(stream);
+            assertThat(result.text).contains("Имеется спорная точка зрения, гласящая примерно следующее:");
         }
-        assertThat(result.text).contains("Имеется спорная точка зрения, гласящая примерно следующее:");
     }
     //проверка  excel-файла
     @Test
@@ -47,6 +46,7 @@ public class SelenideFileTest {
         ZipFile zipFile;
         zipFile = new ZipFile("./src/test/resources/Test.zip");
         String destination = "./src/test/resources/TestZip/";
+        String filename="Test-2.txt";
         if (zipFile.isEncrypted()) {
             zipFile.setPassword("123".toCharArray());
             System.out.println("Пароль подошел");
@@ -56,6 +56,10 @@ public class SelenideFileTest {
             paths
                     .filter(Files::isRegularFile)
                     .forEach(System.out::println);
+            if (Files.exists(Paths.get(destination + filename))){
+             System.out.println( "Файл "+filename+" есть в архиве");
+            }
+            else {System.out.println( "Файл "+filename+" не найден в архиве");}
         }
     }
 
